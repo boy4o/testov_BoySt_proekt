@@ -437,8 +437,9 @@
             
             const ctx = document.getElementById('priceComparisonChart').getContext('2d');
             if (priceComparisonChart) priceComparisonChart.destroy();
+
             
-            
+
             priceComparisonChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
