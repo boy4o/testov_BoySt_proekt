@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивен анализатор на брошури</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Custom Store Colors (Yellow, Red, Orange, Blue) -->
+    <!-- Application Structure Plan: The SPA is now structured around a core user task: building and optimizing a shopping list. The top chart remains for a high-level overview. The central part is the new Shopping List manager, allowing users to see their selected items and toggle a filter. The main product display is changed to a list view (table-like rows) for clearer price comparison across stores. Each row has an 'add to list' button. This architecture directly supports the user's workflow: browse/search -> add to list -> filter list -> compare totals. -->
+    <!-- Visualization & Content Choices:
+        - Report Info: Number of deals per store. Goal: High-level comparison. Viz: Donut Chart. Interaction: Hover. Justification: Unchanged, provides quick overview. Library: Chart.js.
+        - Report Info: Price comparison for a single product. Goal: Detailed comparison. Viz: Horizontal Bar Chart (modal). Interaction: Click on product name. Justification: Unchanged, provides focused comparison. Library: Chart.js.
+        - Report Info: All product data. Goal: Organize for comparison and selection. Viz: List/Row view. Interaction: Filter, Search, Add to List. Justification: Changed from grid to list for clearer row-by-row comparison of prices, directly addressing the user request. Method: Dynamic HTML generation.
+        - Report Info: User-selected products. Goal: Curate and analyze a personal shopping list. Viz: A separate list UI with total price calculation per store. Interaction: Add/remove items, toggle filter view. Justification: Core new feature to make the tool more practical and task-oriented. Method: Dynamic HTML generation with JS state management. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa; /* Light grey background */
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 40vh;
+            width: 80vw;
+            max-width: 500px;
+            max-height: 400px;
+        }
+         .modal-chart-container {
+             position: relative; 
+             width: 100%; 
+             max-width: 600px; 
+             margin-left: auto; 
+             margin-right: auto; 
+             height: 300px;
+             max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .modal-chart-container { 
+                height: 350px; 
+            } 
+        }
+        .category-nav button.active {
+            background-color: #0d9488; /* Teal-700 */
+            color: white;
+            font-weight: 600;
+        }
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .product-row:hover {
+            background-color: #f1f5f9; /* Slate-100 */
+        }
+        .price-cell {
+            text-align: right;
+            min-width: 100px;
+        }
+        .add-btn {
+            background-color: #d1fae5; /* Green-100 */
+            color: #065f46; /* Green-800 */
+        }
+        .add-btn.added {
+            background-color: #0d9488; /* Teal-600 */
+            color: white;
+        }
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #0d9488;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #0d9488;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+    <div id="app" class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-teal-700">Промо Оферти</h1>
+            <p class="text-slate-500 mt-2">Вашият гид за най-добрите пазарски сделки</p>
+        </header>
+
+        <section id="shopping-list-section" class="mb-8 p-6 bg-white rounded-xl shadow-md hidden">
+             <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
+                <h2 class="text-2xl font-bold text-teal-600">Списък за пазаруване</h2>
+                <div class="flex items-center gap-4">
+                     <div class="flex items-center">
+                        <span class="text-sm font-medium text-slate-700 mr-3">Покажи само списъка:</span>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggleShoppingList" id="toggleShoppingList" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                            <label for="toggleShoppingList" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                    <button id="clear-list-btn" class="px-4 py-2 text-sm bg-red-100 text-red-700 font-semibold rounded-full hover:bg-red-200 transition">Изчисти списъка</button>
+                </div>
+            </div>
+            <div id="shopping-list-items" class="mb-4"></div>
+            <div id="shopping-list-totals" class="pt-4 border-t border-slate-200"></div>
+        </section>
+
+
+        <section id="filters" class="mb-8 p-6 bg-white rounded-xl shadow-md">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="search" class="block text-sm font-medium text-slate-700 mb-2">Търсене на продукт:</label>
+                    <input type="text" id="search" placeholder="Напр. сирене, бира, олио..." class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500">
+                </div>
+                <div>
+                    <span class="block text-sm font-medium text-slate-700 mb-2">Филтриране по магазин:</span>
+                    <div id="store-filters" class="flex flex-wrap gap-4 items-center mt-3">
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <nav id="category-nav" class="category-nav flex flex-wrap justify-center gap-2 mb-8">
+        </nav>
+
+        <main id="product-list" class="bg-white rounded-xl shadow-md overflow-x-auto">
+            <div class="w-full">
+                <div class="bg-slate-50 p-4 font-bold hidden md:grid grid-cols-[2fr,1fr,1fr,1fr,1fr,auto] gap-4 items-center sticky top-0 z-10">
+                    <span>Продукт</span>
+                    <span class="text-right">BILLA</span>
+                    <span class="text-right">Kaufland</span>
+                    <span class="text-right">Fantastico</span>
+                    <span class="text-right">Lidl</span>
+                    <span class="text-center">Добави</span>
+                </div>
+                <div id="product-rows" class="divide-y divide-slate-200"></div>
+            </div>
+        </main>
+        
+        <section id="highlights" class="mt-10 bg-white p-6 rounded-xl shadow-md">
+            <h2 class="text-2xl font-bold text-center mb-4 text-teal-600">Оферти в резюме</h2>
+            <p class="text-center text-slate-600 mb-6">Този анализ представя разпределението на промоционалните артикули в избрани търговски вериги. Интерактивната диаграма Ви позволява да видите броя на офертите във всяка верига, което улеснява планирането на Вашето пазаруване.</p>
+            <div class="chart-container">
+                <canvas id="dealsOverviewChart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <div id="productModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 relative">
+            <button id="closeModal" class="absolute top-4 right-4 text-slate-500 hover:text-slate-800 text-2xl">&times;</button>
+            <h2 id="modalTitle" class="text-2xl font-bold mb-4 text-teal-700">Сравнение на цени</h2>
+            <div class="modal-chart-container">
+                <canvas id="priceComparisonChart"></canvas>
+            </div>
+            <p class="text-center text-slate-600 mt-4 text-sm">Тази диаграма сравнява цената на избрания продукт в различните магазини. По-ниската стойност означава по-добра оферта.</p>
+        </div>
+    </div>
+
+    <script>
+        const productData = [
+            {"category":"Плодове и Зеленчуци","product":"Пъпеш деликатесен, за 1 кг","billa":1.99,"kaufland":null,"fantastico":1.99,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Авокадо Хас, 1 бр.","billa":0.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Сладка царевица, за брой","billa":1.49,"kaufland":1.19,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Краставици, за 1 кг","billa":1.99,"kaufland":null,"fantastico":1.99,"lidl":1.99},
+            {"category":"Плодове и Зеленчуци","product":"Малини, 125 г","billa":null,"kaufland":2.99,"fantastico":null,"lidl":null},
+            {"category":"Месо и Субпродукти","product":"Пресен пилешки бут цял, за 1 кг","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месо и Субпродукти","product":"Свинска плешка без кост, за 1 кг","billa":7.99,"kaufland":5.99,"fantastico":null,"lidl":null},
+            {"category":"Месо и Субпродукти","product":"Свинско контрафиле, за 1 кг","billa":9.99,"kaufland":7.99,"fantastico":null,"lidl":null},
+            {"category":"Месни Заготовки","product":"Кюфтета или кебапчета от свинско месо, 480 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Колбаси и Деликатеси","product":"Луканков салам ОРЕХИТЕ, 230 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Кисело мляко БАЛКАН, 4,5%, 400 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Прясно мляко ВЕРЕЯ, 3%, 1 л","billa":2.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Краве сирене БЕЛЕНСКО, от деликатесна витрина, за 1 кг","billa":13.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Кашкавал от краве мляко НЕВЕННА, 750 г","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Масло DEUTSCHE MARKENBUTTER, 250 г","billa":null,"kaufland":4.99,"fantastico":6.49,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Яйца от подово отглеждани кокошки ДОНЧЕВО, размер L, 10 бр.","billa":4.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Хляб и Печива","product":"Баничка със сирене, 90 г","billa":0.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Замразени храни","product":"Сладолед GALAXY плодови вкусове, 67 г","billa":0.89,"kaufland":0.99,"fantastico":0.99,"lidl":null},
+            {"category":"Основни Храни","product":"Маслиново масло COSTA D'ORO, 750 мл","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Основни Храни","product":"Ориз KRINA Български, 1 кг","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Основни Храни","product":"Брашно МЕЛКО, тип 500, 1 кг","billa":1.39,"kaufland":null,"fantastico":1.39,"lidl":null},
+            {"category":"Основни Храни","product":"Захар СЛАДЕЯ, 1 кг","billa":null,"kaufland":1.39,"fantastico":1.69,"lidl":null},
+            {"category":"Консерви и Сосове","product":"Пастет Апетит THE CHEFS, 300 г","billa":1.85,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Сладки и Солени","product":"Оризов чипс RICE UP, 60 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Сладки и Солени","product":"Шоколадови бонбони MERCI, 400 г","billa":16.99,"kaufland":16.99,"fantastico":16.99,"lidl":null},
+            {"category":"Кафе и Какао","product":"Мляно кафе LAVAZZA Crema e Gusto, 2x250 г","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Напитки","product":"Бира ПИРИНСКО, 0.5 л","billa":1.15,"kaufland":null,"fantastico":1.15,"lidl":null},
+            {"category":"Напитки","product":"Бира БУРГАСКО, 2 л","billa":2.15,"kaufland":2.15,"fantastico":2.19,"lidl":null},
+            {"category":"Напитки","product":"Газирана напитка PEPSI, 1.5 л","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Напитки","product":"Вода DEVIN, 5 л","billa":null,"kaufland":1.89,"fantastico":null,"lidl":null},
+            {"category":"Алкохол (без бира)","product":"Уиски CLAYMORE, 0.7 л","billa":12.99,"kaufland":null,"fantastico":12.99,"lidl":null},
+            {"category":"Алкохол (без бира)","product":"Уиски J&B, 0.7 л","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"За Дома и Хигиена","product":"Паста за зъби PARODONTAX Ultra Clean, 75 мл","billa":5.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"За Дома и Хигиена","product":"Омекотител BINGO, 60 пранета","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"За Дома и Хигиена","product":"Кухненска ролка PAPIA, 3 пласта, 2 бр.","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null}
+        ];
+        
+        const stores = {
+            billa: { name: "BILLA", color: "rgba(255, 214, 0, 0.8)", borderColor: "rgba(255, 214, 0, 1)" },
+            kaufland: { name: "Kaufland", color: "rgba(227, 6, 19, 0.8)", borderColor: "rgba(227, 6, 19, 1)" },
+            fantastico: { name: "Fantastico", color: "rgba(239, 129, 39, 0.8)", borderColor: "rgba(239, 129, 39, 1)" },
+            lidl: { name: "Lidl", color: "rgba(0, 80, 158, 0.8)", borderColor: "rgba(0, 80, 158, 1)" },
+        };
+
+        let currentCategory = 'all';
+        let searchTerm = '';
+        let activeStores = ['billa', 'kaufland', 'fantastico', 'lidl'];
+        let priceComparisonChart = null;
+        let dealsOverviewChart = null;
+        
+        let shoppingList = [];
+        let isShoppingListFilterActive = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupCategories();
+            setupStoreFilters();
+            renderProducts();
+            renderDealsOverview();
+            
+            document.getElementById('search').addEventListener('input', (e) => {
+                searchTerm = e.target.value.toLowerCase();
+                renderProducts();
+            });
+
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('productModal').addEventListener('click', (e) => {
+                if(e.target.id === 'productModal') closeModal();
+            });
+            
+            document.getElementById('toggleShoppingList').addEventListener('change', (e) => {
+                isShoppingListFilterActive = e.target.checked;
+                renderProducts();
+            });
+
+            document.getElementById('clear-list-btn').addEventListener('click', () => {
+                shoppingList = [];
+                isShoppingListFilterActive = false;
+                document.getElementById('toggleShoppingList').checked = false;
+                updateShoppingListView();
+                renderProducts();
+            });
+        });
+
+        const setupCategories = () => {
+            const nav = document.getElementById('category-nav');
+            const categories = ['all', ...new Set(productData.map(p => p.category))];
+            nav.innerHTML = '';
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.textContent = category === 'all' ? 'Всички' : category.replace(/ /g, '\u00A0');
+                button.dataset.category = category;
+                button.className = 'px-4 py-2 text-sm rounded-full transition bg-white shadow-sm hover:bg-teal-600 hover:text-white border border-slate-200';
+                if(category === 'all') button.classList.add('active');
+                button.addEventListener('click', () => {
+                    currentCategory = category;
+                    document.querySelectorAll('#category-nav button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderProducts();
+                });
+                nav.appendChild(button);
+            });
+        };
+
+        const setupStoreFilters = () => {
+            const container = document.getElementById('store-filters');
+            container.innerHTML = '';
+            Object.keys(stores).forEach(key => {
+                const label = document.createElement('label');
+                label.className = 'inline-flex items-center';
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = key;
+                checkbox.checked = activeStores.includes(key);
+                checkbox.className = 'h-5 w-5 rounded border-gray-300 focus:ring-teal-500';
+                checkbox.style.color = stores[key].borderColor;
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        activeStores.push(key);
+                    } else {
+                        activeStores = activeStores.filter(s => s !== key);
+                    }
+                    renderProducts();
+                });
+                const span = document.createElement('span');
+                span.textContent = stores[key].name;
+                span.className = 'ml-2 text-slate-700';
+                label.appendChild(checkbox);
+                label.appendChild(span);
+                container.appendChild(label);
+            });
+        };
+
+        const renderProducts = () => {
+            const rowsContainer = document.getElementById('product-rows');
+            rowsContainer.innerHTML = '';
+
+            let productsToRender = productData;
+
+            if (isShoppingListFilterActive) {
+                const shoppingListNames = shoppingList.map(item => item.product);
+                productsToRender = productData.filter(p => shoppingListNames.includes(p.product));
+            }
+
+            const filteredProducts = productsToRender.filter(p => {
+                const inCategory = currentCategory === 'all' || p.category === currentCategory;
+                const inSearch = p.product.toLowerCase().includes(searchTerm);
+                const inActiveStores = activeStores.some(storeKey => p[storeKey] != null);
+                return inCategory && inSearch && inActiveStores;
+            });
+
+            if(filteredProducts.length === 0) {
+                 rowsContainer.innerHTML = `<p class="text-slate-500 text-center p-8">Няма намерени продукти по зададените критерии.</p>`;
+                 return;
+            }
+
+            filteredProducts.forEach(product => {
+                const row = document.createElement('div');
+                const isAdded = shoppingList.some(item => item.product === product.product);
+
+                let priceCells = '';
+                Object.keys(stores).forEach(key => {
+                    const price = product[key];
+                    priceCells += `<div class="price-cell p-2"><span class="${price ? 'font-semibold' : 'text-slate-400'}">${price ? price.toFixed(2) + ' лв.' : '–'}</span></div>`;
+                });
+
+                row.className = 'product-row grid grid-cols-[2fr,1fr,1fr,1fr,1fr,auto] gap-4 items-center p-4';
+                row.innerHTML = `
+                    <div class="cursor-pointer" onclick="event.stopPropagation(); showProductModalByName('${product.product}')">
+                        <h3 class="font-bold text-slate-800">${product.product}</h3>
+                        <p class="text-xs text-slate-400">${product.category}</p>
+                    </div>
+                    ${priceCells}
+                    <div class="text-center">
+                        <button class="add-btn ${isAdded ? 'added' : ''} px-3 py-1 rounded-full text-lg font-bold transition" onclick="toggleShoppingListItem('${product.product}')">
+                            ${isAdded ? '✔' : '+'}
+                        </button>
+                    </div>
+                `;
+                rowsContainer.appendChild(row);
+            });
+        };
+        
+        window.toggleShoppingListItem = (productName) => {
+            const productIndex = shoppingList.findIndex(item => item.product === productName);
+            if (productIndex > -1) {
+                shoppingList.splice(productIndex, 1);
+            } else {
+                const productToAdd = productData.find(p => p.product === productName);
+                if (productToAdd) {
+                    shoppingList.push(productToAdd);
+                }
+            }
+            updateShoppingListView();
+            renderProducts();
+        };
+
+        const updateShoppingListView = () => {
+            const container = document.getElementById('shopping-list-section');
+            const itemsContainer = document.getElementById('shopping-list-items');
+            const totalsContainer = document.getElementById('shopping-list-totals');
+            
+            if (shoppingList.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+
+            itemsContainer.innerHTML = shoppingList.map(p => `
+                <div class="flex justify-between items-center py-1 text-sm">
+                    <span>${p.product}</span>
+                    <button class="text-red-500 hover:text-red-700 font-bold" onclick="removeShoppingListItem('${p.product}')">✖</button>
+                </div>
+            `).join('');
+
+            const totals = {};
+            Object.keys(stores).forEach(storeKey => {
+                totals[storeKey] = shoppingList.reduce((acc, curr) => acc + (curr[storeKey] || 0), 0);
+            });
+
+            totalsContainer.innerHTML = `
+                <h3 class="font-bold mb-2">Общо по магазини:</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    ${Object.keys(stores).map(storeKey => `
+                        <div class="p-3 bg-slate-50 rounded-lg">
+                            <p class="font-semibold text-slate-700">${stores[storeKey].name}</p>
+                            <p class="font-bold text-2xl" style="color:${stores[storeKey].borderColor};">${totals[storeKey].toFixed(2)} лв.</p>
+                        </div>
+                    `).join('')}
+                </div>`;
+        };
+        
+        window.removeShoppingListItem = (productName) => {
+            shoppingList = shoppingList.filter(p => p.product !== productName);
+            if (isShoppingListFilterActive) {
+                renderProducts();
+            } else {
+                const button = document.querySelector(`button[onclick="toggleShoppingListItem('${productName}')"]`);
+                if(button) {
+                    button.classList.remove('added');
+                    button.innerHTML = '+';
+                }
+            }
+            updateShoppingListView();
+        }
+
+        const renderDealsOverview = () => {
+            const ctx = document.getElementById('dealsOverviewChart').getContext('2d');
+            const storeCounts = Object.keys(stores).map(key => productData.filter(p => p[key] != null).length);
+
+            if (dealsOverviewChart) dealsOverviewChart.destroy();
+
+            dealsOverviewChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.values(stores).map(s => s.name),
+                    datasets: [{ label: 'Брой оферти', data: storeCounts, backgroundColor: Object.values(stores).map(s => s.color), borderColor: Object.values(stores).map(s => s.borderColor), borderWidth: 1 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: (c) => `${c.label}: ${c.parsed} оферти` } } } }
+            });
+        };
+
+        window.showProductModalByName = (productName) => {
+            const product = productData.find(p => p.product === productName);
+            if (product) showProductModal(product);
+        }
+
+        const showProductModal = (product) => {
+            document.getElementById('modalTitle').textContent = `Сравнение на цени за: ${product.product}`;
+            
+            const datasets = [];
+            const labels = [];
+            Object.keys(stores).forEach(storeKey => {
+                if (product[storeKey]) {
+                    labels.push(stores[storeKey].name);
+                    datasets.push(product[storeKey]);
+                }
+            });
+            
+            const ctx = document.getElementById('priceComparisonChart').getContext('2d');
+            if (priceComparisonChart) priceComparisonChart.destroy();
+            
+            priceComparisonChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{ label: 'Цена (лв.)', data: datasets, backgroundColor: labels.map(label => stores[Object.keys(stores).find(key => stores[key].name === label)].color), borderColor: labels.map(label => stores[Object.keys(stores).find(key => stores[key].name === label)].borderColor), borderWidth: 1 }]
+                },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, title: { display: true, text: 'Цена в лв.' } } } }
+            });
+
+            const modal = document.getElementById('productModal');
+            modal.classList.remove('hidden');
+            setTimeout(()=> modal.classList.remove('opacity-0'), 10);
+        };
+        
+        const closeModal = () => {
+            const modal = document.getElementById('productModal');
+            modal.classList.add('opacity-0');
+            setTimeout(()=> modal.classList.add('hidden'), 250);
+        };
+    </script>
+</body>
+</html>
