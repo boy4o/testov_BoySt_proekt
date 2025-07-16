@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Custom Store Colors (Yellow, Red, Orange, Blue) -->
-    <!-- Application Structure Plan: The SPA is now structured around a core user task: building and optimizing a shopping list. The top chart remains for a high-level overview. The central part is the new Shopping List manager, allowing users to see their selected items and toggle a filter. The main product display is changed to a list view (table-like rows) for clearer price comparison across stores. Each row has an 'add to list' button. This architecture directly supports the user's workflow: browse/search -> add to list -> filter list -> compare totals. -->
+    <!-- Application Structure Plan: The SPA is now structured around a core user task: building and optimizing a shopping list. A top chart provides a high-level overview. The central part is the new Shopping List manager, allowing users to see selected items and toggle a filter. The main product display is a list view (table-like rows) for clearer price comparison across stores. Each row has an 'add to list' button. This architecture supports the user's workflow: browse/search -> add to list -> filter list -> compare totals. -->
     <!-- Visualization & Content Choices:
-        - Report Info: Number of deals per store. Goal: High-level comparison. Viz: Donut Chart. Interaction: Hover. Justification: Unchanged, provides quick overview. Library: Chart.js.
-        - Report Info: Price comparison for a single product. Goal: Detailed comparison. Viz: Horizontal Bar Chart (modal). Interaction: Click on product name. Justification: Unchanged, provides focused comparison. Library: Chart.js.
-        - Report Info: All product data. Goal: Organize for comparison and selection. Viz: List/Row view. Interaction: Filter, Search, Add to List. Justification: Changed from grid to list for clearer row-by-row comparison of prices, directly addressing the user request. Method: Dynamic HTML generation.
-        - Report Info: User-selected products. Goal: Curate and analyze a personal shopping list. Viz: A separate list UI with total price calculation per store. Interaction: Add/remove items, toggle filter view. Justification: Core new feature to make the tool more practical and task-oriented. Method: Dynamic HTML generation with JS state management. -->
+        - Report Info: Number of deals per store. Goal: High-level comparison. Viz: Donut Chart. Interaction: Hover. Justification: Provides a quick overview of promotional activity. Library: Chart.js.
+        - Report Info: Price comparison for a single product. Goal: Detailed comparison. Viz: Horizontal Bar Chart (modal). Interaction: Click on product name. Justification: Provides focused, easy-to-read comparison for a specific item. Library: Chart.js.
+        - Report Info: All product data. Goal: Organize for comparison and selection. Viz: List/Row view, now grouped by category headers. Interaction: Filter, Search, Add to List. Justification: The list view is superior for direct, row-by-row price comparison. Grouping by category headers, as requested, improves scannability and structure. Method: Dynamic HTML generation.
+        - Report Info: User-selected products. Goal: Curate and analyze a personal shopping list. Viz: A separate list UI with total price calculation per store. Interaction: Add/remove items, toggle filter view. Justification: Core feature to make the tool more practical and task-oriented. Method: Dynamic HTML generation with JS state management. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
@@ -74,6 +74,16 @@
         .toggle-checkbox:checked + .toggle-label {
             background-color: #0d9488;
         }
+        .category-header {
+            position: sticky;
+            top: 64px; /* Height of the main header */
+            z-index: 9;
+        }
+        #product-list-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
@@ -123,7 +133,7 @@
 
         <main id="product-list" class="bg-white rounded-xl shadow-md overflow-x-auto">
             <div class="w-full">
-                <div class="bg-slate-50 p-4 font-bold hidden md:grid grid-cols-[2fr,1fr,1fr,1fr,1fr,auto] gap-4 items-center sticky top-0 z-10">
+                <div id="product-list-header" class="bg-slate-50 p-4 font-bold hidden md:grid grid-cols-[2fr,1fr,1fr,1fr,1fr,auto] gap-4 items-center">
                     <span>Продукт</span>
                     <span class="text-right">BILLA</span>
                     <span class="text-right">Kaufland</span>
@@ -162,36 +172,76 @@
             {"category":"Плодове и Зеленчуци","product":"Сладка царевица, за брой","billa":1.49,"kaufland":1.19,"fantastico":null,"lidl":null},
             {"category":"Плодове и Зеленчуци","product":"Краставици, за 1 кг","billa":1.99,"kaufland":null,"fantastico":1.99,"lidl":1.99},
             {"category":"Плодове и Зеленчуци","product":"Малини, 125 г","billa":null,"kaufland":2.99,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Череши, 500 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Нектарини, за кг","billa":null,"kaufland":null,"fantastico":null,"lidl":3.99},
+            {"category":"Плодове и Зеленчуци","product":"Ананас, 1 бр.","billa":3.99,"kaufland":3.99,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Къпини, 125 г","billa":2.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Диня с малко семки, за 1 кг","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Българска диня, за 1 кг","billa":null,"kaufland":null,"fantastico":null,"lidl":0.59},
+            {"category":"Плодове и Зеленчуци","product":"Пресни картофи, за 1 кг","billa":1.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Ранно зеле, за 1 кг","billa":0.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Пиперки светлозелени, за 1 кг","billa":3.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Плодове и Зеленчуци","product":"Био розови домати МОРАВСКО СЕЛО, 500 г","billa":null,"kaufland":null,"fantastico":2.99,"lidl":null},
             {"category":"Месо и Субпродукти","product":"Пресен пилешки бут цял, за 1 кг","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Месо и Субпродукти","product":"Свинска плешка без кост, за 1 кг","billa":7.99,"kaufland":5.99,"fantastico":null,"lidl":null},
             {"category":"Месо и Субпродукти","product":"Свинско контрафиле, за 1 кг","billa":9.99,"kaufland":7.99,"fantastico":null,"lidl":null},
-            {"category":"Месни Заготовки","product":"Кюфтета или кебапчета от свинско месо, 480 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месо и Субпродукти","product":"Пуешко филе нарязано ДЕЛИА, 400 г","billa":8.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месо и Субпродукти","product":"Охладен заек, за 1 кг","billa":12.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месни Заготовки","product":"Кюфтета или кебапчета СТАРА ПЛАНИНА, 480 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месни Заготовки","product":"Карначе СТАРА ПЛАНИНА, 400 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месни Заготовки","product":"Наденица натурална, 400 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месни Заготовки","product":"Телешка кайма MEAT REVOLUTION, 400 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месни Заготовки","product":"Кайма смес НАШЕНЦИ, 460 г","billa":3.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Месни Заготовки","product":"Black Angus бургер GRILL PARTY, 300 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Риба и Морски Дарове","product":"Лаврак пресен, за 1 кг","billa":17.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Риба и Морски Дарове","product":"Филе Херинга, за 1 кг","billa":8.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Риба и Морски Дарове","product":"Скумрия цяла замразена, за 1 кг","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Риба и Морски Дарове","product":"Скумрия XXL, изчистена, размразена, ≈1.1 кг","billa":null,"kaufland":null,"fantastico":null,"lidl":8.99},
+            {"category":"Риба и Морски Дарове","product":"Пушена сьомга STARFISH, 100 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Колбаси и Деликатеси","product":"Луканков салам ОРЕХИТЕ, 230 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Колбаси и Деликатеси","product":"Сушеница CLEVER, 280 г","billa":4.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Колбаси и Деликатеси","product":"Кренвирши CLEVER, за 1 кг","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Колбаси и Деликатеси","product":"Филе Елена, от свинско контрафиле, от витрина, за кг","billa":null,"kaufland":20.99,"fantastico":null,"lidl":null},
+            {"category":"Колбаси и Деликатеси","product":"Салам Закуска EKO MEC, 400 г","billa":7.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Колбаси и Деликатеси","product":"Кренвирши LEKI Винер, 2x400 г","billa":8.49,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Млечни Продукти и Яйца","product":"Кисело мляко БАЛКАН, 4,5%, 400 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Млечни Продукти и Яйца","product":"Прясно мляко ВЕРЕЯ, 3%, 1 л","billa":2.69,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Млечни Продукти и Яйца","product":"Краве сирене БЕЛЕНСКО, от деликатесна витрина, за 1 кг","billa":13.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Краве сирене ЕЛЕНА, за 1 кг","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Млечни Продукти и Яйца","product":"Кашкавал от краве мляко НЕВЕННА, 750 г","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Масло DEUTSCHE MARKENBUTTER, 250 г","billa":null,"kaufland":4.99,"fantastico":6.49,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Масло PRESIDENT, 250 г","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Млечни Продукти и Яйца","product":"Яйца от подово отглеждани кокошки ДОНЧЕВО, размер L, 10 бр.","billa":4.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Млечни Продукти и Яйца","product":"Пресни яйца, размер М, 30 бр.","billa":null,"kaufland":null,"fantastico":null,"lidl":8.99},
             {"category":"Хляб и Печива","product":"Баничка със сирене, 90 г","billa":0.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Хляб и Печива","product":"Сомун, 300 г","billa":1.09,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Замразени храни","product":"Сладолед GALAXY плодови вкусове, 67 г","billa":0.89,"kaufland":0.99,"fantastico":0.99,"lidl":null},
+            {"category":"Замразени храни","product":"Пилешки панирани хапки CRETA FARMS, 400 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Основни Храни","product":"Маслиново масло COSTA D'ORO, 750 мл","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Основни Храни","product":"Ориз KRINA Български, 1 кг","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Основни Храни","product":"Брашно МЕЛКО, тип 500, 1 кг","billa":1.39,"kaufland":null,"fantastico":1.39,"lidl":null},
             {"category":"Основни Храни","product":"Захар СЛАДЕЯ, 1 кг","billa":null,"kaufland":1.39,"fantastico":1.69,"lidl":null},
+            {"category":"Основни Храни","product":"Боб BILLA, 500 г","billa":2.29,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Консерви и Сосове","product":"Пастет Апетит THE CHEFS, 300 г","billa":1.85,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Консерви и Сосове","product":"Пастет Апетит BARONI, 300 г","billa":null,"kaufland":null,"fantastico":null,"lidl":1.32},
+            {"category":"Консерви и Сосове","product":"Риба тон в слънчогледово масло BILLA, 185 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Сладки и Солени","product":"Оризов чипс RICE UP, 60 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Сладки и Солени","product":"Шоколадови бонбони MERCI, 400 г","billa":16.99,"kaufland":16.99,"fantastico":16.99,"lidl":null},
+            {"category":"Сладки и Солени","product":"Шоколадови бонбони MERCI, 400 г","billa":16.99,"kaufland":16.99,"fantastico":null,"lidl":null},
+            {"category":"Сладки и Солени","product":"Шоколад MILKA с цял лешник, 250 г","billa":7.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Сладки и Солени","product":"Кексче БОРОВЕЦ, 30 г","billa":0.49,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Кафе и Какао","product":"Мляно кафе LAVAZZA Crema e Gusto, 2x250 г","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Кафе и Какао","product":"Мляно кафе NOVA BRASILIA, 450 г","billa":null,"kaufland":11.49,"fantastico":11.49,"lidl":null},
+            {"category":"Кафе и Какао","product":"Разтворимо кафе NESCAFE, 2x250 г","billa":23.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Напитки","product":"Бира ПИРИНСКО, 0.5 л","billa":1.15,"kaufland":null,"fantastico":1.15,"lidl":null},
-            {"category":"Напитки","product":"Бира БУРГАСКО, 2 л","billa":2.15,"kaufland":2.15,"fantastico":2.19,"lidl":null},
-            {"category":"Напитки","product":"Газирана напитка PEPSI, 1.5 л","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Напитки","product":"Бира CORONA EXTRA, 330-355 мл","billa":1.99,"kaufland":1.99,"fantastico":1.99,"lidl":null},
+            {"category":"Напитки","product":"Газирана напитка PEPSI, 1.5 л","billa":1.49,"kaufland":null,"fantastico":1.99,"lidl":null},
             {"category":"Напитки","product":"Вода DEVIN, 5 л","billa":null,"kaufland":1.89,"fantastico":null,"lidl":null},
-            {"category":"Алкохол (без бира)","product":"Уиски CLAYMORE, 0.7 л","billa":12.99,"kaufland":null,"fantastico":12.99,"lidl":null},
+            {"category":"Алкохол (без бира)","product":"Уиски CLAYMORE, 0.7 л","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"Алкохол (без бира)","product":"Уиски J&B, 0.7 л","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Алкохол (без бира)","product":"Мастика ЗААРСКА, 0.7 л","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"За Дома и Хигиена","product":"Паста за зъби PARODONTAX Ultra Clean, 75 мл","billa":5.59,"kaufland":null,"fantastico":null,"lidl":null},
             {"category":"За Дома и Хигиена","product":"Омекотител BINGO, 60 пранета","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"За Дома и Хигиена","product":"Кухненска ролка PAPIA, 3 пласта, 2 бр.","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null}
+            {"category":"За Дома и Хигиена","product":"Кухненска ролка PAPIA, 3 пласта, 2 бр.","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"За Дома и Хигиена","product":"Тоалетна хартия FAMILIA, 3 пласта, 48 бр.","billa":null,"kaufland":null,"fantastico":null,"lidl":9.71}
         ];
         
         const stores = {
@@ -311,31 +361,45 @@
                  rowsContainer.innerHTML = `<p class="text-slate-500 text-center p-8">Няма намерени продукти по зададените критерии.</p>`;
                  return;
             }
+            
+            const categories = [...new Set(filteredProducts.map(p => p.category))].sort();
 
-            filteredProducts.forEach(product => {
-                const row = document.createElement('div');
-                const isAdded = shoppingList.some(item => item.product === product.product);
+            categories.forEach(category => {
+                if (currentCategory !== 'all' && category !== currentCategory) {
+                    return;
+                }
+                
+                const header = document.createElement('div');
+                header.className = 'category-header bg-slate-200 p-3 text-lg font-bold text-teal-800';
+                header.textContent = category;
+                rowsContainer.appendChild(header);
 
-                let priceCells = '';
-                Object.keys(stores).forEach(key => {
-                    const price = product[key];
-                    priceCells += `<div class="price-cell p-2"><span class="${price ? 'font-semibold' : 'text-slate-400'}">${price ? price.toFixed(2) + ' лв.' : '–'}</span></div>`;
+                const productsInCategory = filteredProducts.filter(p => p.category === category);
+
+                productsInCategory.forEach(product => {
+                    const row = document.createElement('div');
+                    const isAdded = shoppingList.some(item => item.product === product.product);
+
+                    let priceCells = '';
+                    Object.keys(stores).forEach(key => {
+                        const price = product[key];
+                        priceCells += `<div class="price-cell p-2"><span class="${price && activeStores.includes(key) ? 'font-semibold' : 'text-slate-400'}">${price && activeStores.includes(key) ? price.toFixed(2) + ' лв.' : '–'}</span></div>`;
+                    });
+
+                    row.className = 'product-row grid grid-cols-[2fr,1fr,1fr,1fr,1fr,auto] gap-4 items-center p-4';
+                    row.innerHTML = `
+                        <div class="cursor-pointer" onclick="event.stopPropagation(); showProductModalByName('${product.product}')">
+                            <h3 class="font-bold text-slate-800">${product.product}</h3>
+                        </div>
+                        ${priceCells}
+                        <div class="text-center">
+                            <button class="add-btn ${isAdded ? 'added' : ''} px-3 py-1 rounded-full text-lg font-bold transition" onclick="toggleShoppingListItem('${product.product}')">
+                                ${isAdded ? '✔' : '+'}
+                            </button>
+                        </div>
+                    `;
+                    rowsContainer.appendChild(row);
                 });
-
-                row.className = 'product-row grid grid-cols-[2fr,1fr,1fr,1fr,1fr,auto] gap-4 items-center p-4';
-                row.innerHTML = `
-                    <div class="cursor-pointer" onclick="event.stopPropagation(); showProductModalByName('${product.product}')">
-                        <h3 class="font-bold text-slate-800">${product.product}</h3>
-                        <p class="text-xs text-slate-400">${product.category}</p>
-                    </div>
-                    ${priceCells}
-                    <div class="text-center">
-                        <button class="add-btn ${isAdded ? 'added' : ''} px-3 py-1 rounded-full text-lg font-bold transition" onclick="toggleShoppingListItem('${product.product}')">
-                            ${isAdded ? '✔' : '+'}
-                        </button>
-                    </div>
-                `;
-                rowsContainer.appendChild(row);
             });
         };
         
@@ -437,9 +501,7 @@
             
             const ctx = document.getElementById('priceComparisonChart').getContext('2d');
             if (priceComparisonChart) priceComparisonChart.destroy();
-
             
-
             priceComparisonChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
