@@ -9,14 +9,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Custom Store Colors (Yellow, Red, Orange, Blue) -->
-    <!-- Application Structure Plan: The SPA is now structured around a core user task: building and optimizing a shopping list. A top chart provides a high-level overview. The central part is the new Shopping List manager, allowing users to see selected items and toggle a filter. The main product display is a list view (table-like rows) for clearer price comparison across stores. Each row has an 'add to list' button. This architecture supports the user's workflow: browse/search -> add to list -> filter list -> compare totals. -->
-    <!-- Visualization & Content Choices:
-        - Report Info: Number of deals per store. Goal: High-level comparison. Viz: Donut Chart. Interaction: Hover. Justification: Provides a quick overview of promotional activity. Library: Chart.js.
-        - Report Info: Price comparison for a single product. Goal: Detailed comparison. Viz: Horizontal Bar Chart (modal). Interaction: Click on product name. Justification: Provides focused, easy-to-read comparison for a specific item. Library: Chart.js.
-        - Report Info: All product data. Goal: Organize for comparison and selection. Viz: List/Row view, now grouped by category headers. Interaction: Filter, Search, Add to List. Justification: The list view is superior for direct, row-by-row price comparison. Grouping by category headers, as requested, improves scannability and structure. Method: Dynamic HTML generation.
-        - Report Info: User-selected products. Goal: Curate and analyze a personal shopping list. Viz: A separate list UI with total price calculation per store. Interaction: Add/remove items, toggle filter view. Justification: Core feature to make the tool more practical and task-oriented. Method: Dynamic HTML generation with JS state management. -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -30,15 +22,15 @@
             max-width: 500px;
             max-height: 400px;
         }
-         .modal-chart-container {
-             position: relative; 
-             width: 100%; 
-             max-width: 600px; 
-             margin-left: auto; 
-             margin-right: auto; 
-             height: 300px;
-             max-height: 400px;
-        }
+          .modal-chart-container {
+              position: relative; 
+              width: 100%; 
+              max-width: 600px; 
+              margin-left: auto; 
+              margin-right: auto; 
+              height: 300px;
+              max-height: 400px;
+          }
         @media (min-width: 768px) {
             .modal-chart-container { 
                 height: 350px; 
@@ -100,12 +92,12 @@
                 <h2 class="text-2xl font-bold text-teal-600">Списък за пазаруване</h2>
                 <div class="flex items-center gap-4">
                      <div class="flex items-center">
-                        <span class="text-sm font-medium text-slate-700 mr-3">Покажи само списъка:</span>
-                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="toggleShoppingList" id="toggleShoppingList" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                            <label for="toggleShoppingList" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                        </div>
-                    </div>
+                         <span class="text-sm font-medium text-slate-700 mr-3">Покажи само списъка:</span>
+                         <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                             <input type="checkbox" name="toggleShoppingList" id="toggleShoppingList" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                             <label for="toggleShoppingList" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                         </div>
+                     </div>
                     <button id="clear-list-btn" class="px-4 py-2 text-sm bg-red-100 text-red-700 font-semibold rounded-full hover:bg-red-200 transition">Изчисти списъка</button>
                 </div>
             </div>
@@ -135,10 +127,10 @@
             <div class="w-full">
                 <div id="product-list-header" class="bg-slate-50 p-4 font-bold hidden md:grid grid-cols-[2fr,1fr,1fr,1fr,1fr,auto] gap-4 items-center">
                     <span>Продукт</span>
-                    <span class="text-right">BILLA</span>
-                    <span class="text-right">Kaufland</span>
-                    <span class="text-right">Fantastico</span>
-                    <span class="text-right">Lidl</span>
+                    <div class="text-right"><span>BILLA</span><div class="text-xs text-slate-500 font-normal">10.07-16.07</div></div>
+                    <div class="text-right"><span>Kaufland</span><div class="text-xs text-slate-500 font-normal">07.07-13.07</div></div>
+                    <div class="text-right"><span>Fantastico</span><div class="text-xs text-slate-500 font-normal">10.07-16.07</div></div>
+                    <div class="text-right"><span>Lidl</span><div class="text-xs text-slate-500 font-normal">07.07-13.07</div></div>
                     <span class="text-center">Добави</span>
                 </div>
                 <div id="product-rows" class="divide-y divide-slate-200"></div>
@@ -167,81 +159,299 @@
 
     <script>
         const productData = [
-            {"category":"Плодове и Зеленчуци","product":"Пъпеш деликатесен, за 1 кг","billa":1.99,"kaufland":null,"fantastico":1.99,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Авокадо Хас, 1 бр.","billa":0.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Сладка царевица, за брой","billa":1.49,"kaufland":1.19,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Краставици, за 1 кг","billa":1.99,"kaufland":null,"fantastico":1.99,"lidl":1.99},
-            {"category":"Плодове и Зеленчуци","product":"Малини, 125 г","billa":null,"kaufland":2.99,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Череши, 500 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Нектарини, за кг","billa":null,"kaufland":null,"fantastico":null,"lidl":3.99},
-            {"category":"Плодове и Зеленчуци","product":"Ананас, 1 бр.","billa":3.99,"kaufland":3.99,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Къпини, 125 г","billa":2.79,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Диня с малко семки, за 1 кг","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Българска диня, за 1 кг","billa":null,"kaufland":null,"fantastico":null,"lidl":0.59},
-            {"category":"Плодове и Зеленчуци","product":"Пресни картофи, за 1 кг","billa":1.79,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Ранно зеле, за 1 кг","billa":0.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Пиперки светлозелени, за 1 кг","billa":3.29,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Плодове и Зеленчуци","product":"Био розови домати МОРАВСКО СЕЛО, 500 г","billa":null,"kaufland":null,"fantastico":2.99,"lidl":null},
-            {"category":"Месо и Субпродукти","product":"Пресен пилешки бут цял, за 1 кг","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Месо и Субпродукти","product":"Свинска плешка без кост, за 1 кг","billa":7.99,"kaufland":5.99,"fantastico":null,"lidl":null},
-            {"category":"Месо и Субпродукти","product":"Свинско контрафиле, за 1 кг","billa":9.99,"kaufland":7.99,"fantastico":null,"lidl":null},
-            {"category":"Месо и Субпродукти","product":"Пуешко филе нарязано ДЕЛИА, 400 г","billa":8.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Месо и Субпродукти","product":"Охладен заек, за 1 кг","billa":12.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Месни Заготовки","product":"Кюфтета или кебапчета СТАРА ПЛАНИНА, 480 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Месни Заготовки","product":"Карначе СТАРА ПЛАНИНА, 400 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Месни Заготовки","product":"Наденица натурална, 400 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Месни Заготовки","product":"Телешка кайма MEAT REVOLUTION, 400 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Месни Заготовки","product":"Кайма смес НАШЕНЦИ, 460 г","billa":3.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Месни Заготовки","product":"Black Angus бургер GRILL PARTY, 300 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Риба и Морски Дарове","product":"Лаврак пресен, за 1 кг","billa":17.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Риба и Морски Дарове","product":"Филе Херинга, за 1 кг","billa":8.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Риба и Морски Дарове","product":"Скумрия цяла замразена, за 1 кг","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Риба и Морски Дарове","product":"Скумрия XXL, изчистена, размразена, ≈1.1 кг","billa":null,"kaufland":null,"fantastico":null,"lidl":8.99},
-            {"category":"Риба и Морски Дарове","product":"Пушена сьомга STARFISH, 100 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Колбаси и Деликатеси","product":"Луканков салам ОРЕХИТЕ, 230 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Колбаси и Деликатеси","product":"Сушеница CLEVER, 280 г","billa":4.79,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Колбаси и Деликатеси","product":"Кренвирши CLEVER, за 1 кг","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Колбаси и Деликатеси","product":"Филе Елена, от свинско контрафиле, от витрина, за кг","billa":null,"kaufland":20.99,"fantastico":null,"lidl":null},
-            {"category":"Колбаси и Деликатеси","product":"Салам Закуска EKO MEC, 400 г","billa":7.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Колбаси и Деликатеси","product":"Кренвирши LEKI Винер, 2x400 г","billa":8.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Кисело мляко БАЛКАН, 4,5%, 400 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Прясно мляко ВЕРЕЯ, 3%, 1 л","billa":2.69,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Краве сирене БЕЛЕНСКО, от деликатесна витрина, за 1 кг","billa":13.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Краве сирене ЕЛЕНА, за 1 кг","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Кашкавал от краве мляко НЕВЕННА, 750 г","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Масло PRESIDENT, 250 г","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Яйца от подово отглеждани кокошки ДОНЧЕВО, размер L, 10 бр.","billa":4.29,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Млечни Продукти и Яйца","product":"Пресни яйца, размер М, 30 бр.","billa":null,"kaufland":null,"fantastico":null,"lidl":8.99},
-            {"category":"Хляб и Печива","product":"Баничка със сирене, 90 г","billa":0.59,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Хляб и Печива","product":"Сомун, 300 г","billa":1.09,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Замразени храни","product":"Сладолед GALAXY плодови вкусове, 67 г","billa":0.89,"kaufland":0.99,"fantastico":0.99,"lidl":null},
-            {"category":"Замразени храни","product":"Пилешки панирани хапки CRETA FARMS, 400 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Основни Храни","product":"Маслиново масло COSTA D'ORO, 750 мл","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Основни Храни","product":"Ориз KRINA Български, 1 кг","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Основни Храни","product":"Брашно МЕЛКО, тип 500, 1 кг","billa":1.39,"kaufland":null,"fantastico":1.39,"lidl":null},
-            {"category":"Основни Храни","product":"Захар СЛАДЕЯ, 1 кг","billa":null,"kaufland":1.39,"fantastico":1.69,"lidl":null},
-            {"category":"Основни Храни","product":"Боб BILLA, 500 г","billa":2.29,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Консерви и Сосове","product":"Пастет Апетит THE CHEFS, 300 г","billa":1.85,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Консерви и Сосове","product":"Пастет Апетит BARONI, 300 г","billa":null,"kaufland":null,"fantastico":null,"lidl":1.32},
-            {"category":"Консерви и Сосове","product":"Риба тон в слънчогледово масло BILLA, 185 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Сладки и Солени","product":"Оризов чипс RICE UP, 60 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Сладки и Солени","product":"Шоколадови бонбони MERCI, 400 г","billa":16.99,"kaufland":16.99,"fantastico":null,"lidl":null},
-            {"category":"Сладки и Солени","product":"Шоколад MILKA с цял лешник, 250 г","billa":7.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Сладки и Солени","product":"Кексче БОРОВЕЦ, 30 г","billa":0.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Кафе и Какао","product":"Мляно кафе LAVAZZA Crema e Gusto, 2x250 г","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Кафе и Какао","product":"Мляно кафе NOVA BRASILIA, 450 г","billa":null,"kaufland":11.49,"fantastico":11.49,"lidl":null},
-            {"category":"Кафе и Какао","product":"Разтворимо кафе NESCAFE, 2x250 г","billa":23.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Напитки","product":"Бира ПИРИНСКО, 0.5 л","billa":1.15,"kaufland":null,"fantastico":1.15,"lidl":null},
-            {"category":"Напитки","product":"Бира CORONA EXTRA, 330-355 мл","billa":1.99,"kaufland":1.99,"fantastico":1.99,"lidl":null},
-            {"category":"Напитки","product":"Газирана напитка PEPSI, 1.5 л","billa":1.49,"kaufland":null,"fantastico":1.99,"lidl":null},
-            {"category":"Напитки","product":"Вода DEVIN, 5 л","billa":null,"kaufland":1.89,"fantastico":null,"lidl":null},
-            {"category":"Алкохол (без бира)","product":"Уиски CLAYMORE, 0.7 л","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Алкохол (без бира)","product":"Уиски J&B, 0.7 л","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"Алкохол (без бира)","product":"Мастика ЗААРСКА, 0.7 л","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"За Дома и Хигиена","product":"Паста за зъби PARODONTAX Ultra Clean, 75 мл","billa":5.59,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"За Дома и Хигиена","product":"Омекотител BINGO, 60 пранета","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"За Дома и Хигиена","product":"Кухненска ролка PAPIA, 3 пласта, 2 бр.","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null},
-            {"category":"За Дома и Хигиена","product":"Тоалетна хартия FAMILIA, 3 пласта, 48 бр.","billa":null,"kaufland":null,"fantastico":null,"lidl":9.71}
+            {"category":"Groceries & Fresh Food","product":"Пъпеш Деликатесен, 1 кг","billa":1.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Пресен пилешки бут цял, 1 кг","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Авокадо Хас, 1 бр.","billa":0.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Кисело мляко БАЛКАН 4,5%, 400 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Кашкавал от краве мляко НЕВЕНА, 750 г","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Кюфтета или кебапчета СТАРА ПЛАНИНА, 480 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Свинска плешка без кост, 1 кг","billa":7.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Луканков салам ОРЕХИТЕ, 230 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Краве сирене БЕЛИИСА, 1 кг","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Черни маслини, 1 кг","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Прясно мляко ВЕРЕЯ 3%, 1 л","billa":2.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Яйца ДОНЧЕВО Размер L, 10 бр.","billa":4.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Ориз KRINA Български, 1 кг","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Телешка кайма MEAT (R)EVOLUTION, 400 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Наденица натурална, 400 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Пуешко филе ДЕЛИКАТЕСЕН, 400 г","billa":8.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Скариди BILLA PREMIUM, 250 г","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Маслини BILLA Каламата или зелени, 100 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Боб BILLA, 500 г","billa":2.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Сладка царевица BILLA ГРАДИНИ, 1 бр.","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Пиперки BILLA ГРАДИНИ светлозелени, 1 кг","billa":3.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Краставици BILLA ГРАДИНИ, 1 кг","billa":1.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Ранно зеле BILLA ГРАДИНИ, 1 кг","billa":0.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Салати BILLA ГРАДИНИ, 1 бр.","billa":1.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Къпини BILLA ГРАДИНИ, 125 г","billa":2.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Диня с малко семки, 1 кг","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Боровинки BILLA ГРАДИНИ, 250 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Ананас, 1 бр.","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Магданоз връзка, 1 бр.","billa":0.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Свински флейки от бут БЪЛГАРСКА ФЕРМА, 1 кг","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Свинска кайма НАШЕНСКИ, 460 г","billa":3.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Свински гърди мариновани, 1 кг","billa":12.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Охладен заек, 1 кг","billa":13.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Сьомга филе с билки, 1 кг","billa":33.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Black Angus бургер GRILL PARTY, 300 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Карначе GRILL PARTY, 300 г","billa":4.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Цаца осолена, 500 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Телешко месо в собствен сос, 510 г","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Пушена сьомга STARFISH, 100 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Мезето на капитана STARFISH КАПИТАНА, 300 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Калмари пане UNIVERSAL FOODS, 400 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Скумрия цяла КОЛИАС, 1 кг","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Комплект за супа от атлантическа сьомга, 800 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Сушеница CLEVER, 280 г","billa":4.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Кренвирши CLEVER, 1 кг","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Колбас НАРОДЕН Телешки или Камчия, 320 г","billa":3.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Удивителна луканкова наденица БОНИ, 330 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Лионска или Македонска наденица КЕН, 390 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Салам шпеков или шпек Бургас ОРЕХИТЕ, 230 г","billa":6.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Салам Закуска ЕКО МЕС, 400 г","billa":7.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Луканка НАШЕНЦИ, 350 г","billa":6.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Луканка Добруджанска или Чардака ОРЕХИТЕ, 180 г / 210 г","billa":8.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Постни лозови сарми, 1 кг","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Панирани топени сиренца, 1 бр.","billa":0.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Чушка бюрек, 1 кг","billa":15.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Хамбургски колбас ЖИТНИЦА, 1 кг","billa":8.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Кренвирши LEKI, 1 кг","billa":10.89,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Македонска наденица БОНИ, 1 кг","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Мортадела с чушки и маслини БРАВО, 1 кг","billa":10.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Свински врат СОКОЛОВО, 1 кг","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Филе Елена, 1 кг","billa":48.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Бекон ТАНДЕМ, 1 кг","billa":21.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Чедър MILKY DREAM, 1 кг","billa":21.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Краве сирене ВЕРЕЯ, 1 кг","billa":15.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Кашкавал от краве мляко БЕЛЕНСКО, 1 кг","billa":16.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Пушена Гауда, 1 кг","billa":16.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Козе сирене ЗНП МАДЖАРОВ, 700 г","billa":19.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Сирене Котидж OLYMPUS, 180 г","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Извара OLYMPUS, 400 г","billa":3.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Крем сирене за мазане HOCHLAND, 200 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Твърдо сирене на люспи GRANBIRAGHI, 80 г","billa":3.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Йогурт по гръцки 10% CLEVER, 1 кг","billa":4.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Моцарела мини BILLA, 125 г","billa":2.89,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Айрян ВЕРЕЯ, 480 мл","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Кисело мляко 2,5% ВЕРЕЯ ЧУДНО, 400 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Кефир OLYMPUS, 300 мл","billa":1.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Скир BILLA, 500 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Френско краве масло PRESIDENT, 250 г","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Десерт FANTASIA, 100-110 г","billa":1.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Ементал слайс GOLDSTEIG, 150 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Червен боб BILLA, 400 г","billa":1.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Печен боб в доматен сос BILLA, 420 г","billa":1.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Царевица JA!, 3 x 150 г","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Брашно тип 500 МЕЛКО, 1 кг","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Ананас парченца и резени BILLA, 565 г","billa":4.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Леща BILLA, 500 г","billa":1.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Шкембе чорба COMPASS, 300 г","billa":2.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Череши BILLA ГРАДИНИ, 500 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Свинско контрафиле, 1 кг","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Краве сирене ДРЯНОВО, 1 кг","billa":10.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Домати белени на кубчета ARRIVA, 400 г","billa":1.15,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Groceries & Fresh Food","product":"Макарони КРЪСТЕВ, 400 г","billa":0.85,"kaufland":null,"fantastico":null,"lidl":null},
+
+            {"category":"Bakery & Hot Counter","product":"Баничка със сирене, 90 г","billa":0.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Царско кебапче, 1 бр.","billa":0.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Сомун, 300 г","billa":1.09,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Кълцаница с кашкавал, 1 бр.","billa":1.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Мелничарски хляб, 400 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Донът Ягода, 56 г","billa":0.89,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Охлювче с канела, 70 г","billa":0.75,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Милинка, 190 г","billa":2.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Мини франзела със семена, 110 г","billa":0.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Хляб ВИТА ФИТНЕС, 400 г","billa":3.45,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Домашна луканкова наденица, 1 бр.","billa":2.09,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Миш маш, 1 кг","billa":14.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Дебърцин, 1 бр.","billa":0.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Спагети с четири сирена, 1 кг","billa":15.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Пиле с прясно зеле, 1 кг","billa":14.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Пилешки дробчета по селски, 1 кг","billa":15.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Bakery & Hot Counter","product":"Печено пиле, 1 бр.","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
+
+            {"category":"Pantry & Packaged Goods","product":"Мляно кафе Crema e Gusto LAVAZZA, 2x250 г","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Необработено маслиново масло COSTA D'ORO, 750 мл","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Оризов чипс RICE UP, 60 г","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Пастет Апетит THE CHEFS, 300 г","billa":1.85,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Кафява захар DEMERARA, 500 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Сос BILLA PREMIUM (чесън, трюфел или къри), 250 мл","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Дресинг BILLA PREMIUM, 250 мл","billa":8.24,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Сос от чери домати BILLA PREMIUM, 330 г","billa":3.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Дресинг италиански THOMY, 350 мл","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Маслиново масло необработено BILLA, 250 мл","billa":7.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Кори за лазаня BILLA, 500 г","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Царевица или Грах BILLA, 150-200 г","billa":1.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Талиатели или Папардели с яйца BILLA, 250 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Фиксове MAGGI, 50 г","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Хрупкави лукчета GRILL PARTY, 100 г","billa":1.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Нудли за тиган MAGGI, 119-130 г","billa":4.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Спагети, пене или фусили BILLA, 500 г","billa":1.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Риба тон BILLA, 185 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Бульон MAGGI, 80 г","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Гъби цели JA!, 400 г","billa":4.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Кафе на зърна Crema e Gusto LAVAZZA, 1 кг","billa":23.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Разтворимо кафе NESCAFE, 2x250 г","billa":23.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Разтворима напитка 3в1 JACOBS, 20х18 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Pantry & Packaged Goods","product":"Кафе капсули Лешник BIANCHI, 128 г","billa":8.99,"kaufland":null,"fantastico":null,"lidl":null},
+
+            {"category":"Snacks & Sweets","product":"Сладолед GALAXY Familia, 67 г","billa":0.89,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Шоколадови бонбони MERCI, 400 г","billa":16.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед фунийка OREO, 100 мл","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед сандвич MAGNUM, 140 мл","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед HIT, 50-59 г","billa":1.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед NUII, 2x68 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед на клечка MILKA, 90 мл","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед NIRVANA, 122-128 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед манго и мед NUII, 6х55 мл","billa":10.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед FAMILIA COLLECTION, 481-529 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед MILKA, 480 мл","billa":10.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед мултипак PIRULO, 5х73 мл","billa":4.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Плодов микс BILLA, 5х70 мл","billa":4.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед ЧЕРНОМОРЕЦ, 900 мл","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед ванилия ИЗИДА, 1 л","billa":4.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед BILLA, 900-1000 мл","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Ледена близалка BILLA, 5х73 мл","billa":4.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед CLEVER, 1000 мл","billa":3.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед Smile ALGIDA, 900 мл","billa":7.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед BEN & JERRY, 427 мл","billa":10.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед BILLA, 120 г","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед сандвич BILLA, 8x90 г","billa":5.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Сладолед Old Time ванилия ИЗИДА, 750 мл","billa":10.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Протеинов бар кокос OSHEE, 48 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Тунквана вафла ТРОЯ, 28 г","billa":0.35,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Мини Вафлички VARNA, 260 г","billa":3.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Тунквани бисквити ГЕРБЕРИ, 170 г","billa":2.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Суха паста ПРЕСТИЖ, 30 г","billa":0.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Кексче БОРОВЕЦ, 30 г","billa":0.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Суха паста какао Delice KINDER, 156 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Шоколадов десерт LION, 60 г","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Млечен шоколад LACMI, 87 г","billa":2.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Кантучини с бадем LAURIERI, 200 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Меденки с глазура BILLA, 200 г","billa":1.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Чипс RUFFLES, 230 г","billa":3.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Суров орех NICE BITES, 150 г","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Снакс Original POM-BAR, 50 г","billa":1.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Стафиди тъмни Джъмбо NICE BITES, 200 г","billa":2.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Тарали с масло LAURIERI, 300 г","billa":2.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Шоколад с цял лешник MILKA, 250 г","billa":7.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Бонбони Chocolateria ROSHEN, 194 г","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Snacks & Sweets","product":"Млечен шоколад SCHOGETTEN, 100 г","billa":2.79,"kaufland":null,"fantastico":null,"lidl":null},
+
+            {"category":"Beverages","product":"Бира ПИРИНСКО, 0.5 л","billa":1.15,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Газирана напитка PEPSI, 1.5 л","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира AMSTEL, 1 л","billa":1.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира БУРГАСКО, 2 л","billa":2.15,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Вино EMINE, 0.75 л","billa":7.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Газирана напитка PEPSI, 0.33 л","billa":0.84,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Напитка бадемова или лешникова ALPRO, 1 л","billa":5.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Газирана вода BILLA, 1.5 л","billa":0.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Газирана вода DEVIN AIR, 0.5 л","billa":0.89,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Сок Ябълка 100% BILLA ГРАДИНИ, 3 л","billa":6.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Минерална вода БАНКЯ, 1.5 л","billa":0.89,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Негазирана напитка LAVA BEAR, 0.5 л","billa":1.74,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Плодово пюре NUTRINO LAB, 200 г","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Изворна вода DEVIN, 11 л","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Студен чай SAN BENEDETTO, 1.5 л","billa":2.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Енергийна напитка MONSTER, 0.5 л","billa":1.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Сайдер SOMERSBY, 0.33 л","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бяла бира HOEGAARDEN, 0.33 л","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира Pale Ale GLARUS, 0.5 л","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира KROMBACHER, 0.5 л","billa":2.15,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира PILSNER URQUELL, 0.5 л","billa":2.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира Premium lager BERNARD, 0.5 л","billa":3.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира WARSTEINER, 0.5 л","billa":2.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира ESTRELLA, 0.5 л","billa":2.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Weiss бира SCHOFFERHOFER, 0.5 л","billa":1.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира EFES, 0.5 л","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира НИШКО ПИВО, 0.5 л","billa":1.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира BLANC 1664, 0.5 л","billa":2.19,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Газирана напитка COCA-COLA, 0.5 л","billa":1.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Beverages","product":"Бира MADRI, 0.5 л","billa":1.49,"kaufland":null,"fantastico":null,"lidl":null},
+
+            {"category":"Alcohol","product":"Уиски CLAYMORE, 0.7 л","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Уиски J&B, 0.7 л","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Джин Pink GIBSON'S, 0.7 л","billa":15.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Узо PARALIA, 0.7 л","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Ракия отлежала гроздова БОЛГАРЕ, 0.7 л","billa":10.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Водка KOSKENKORVA, 0.7 л","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Бърбън JIM BEAM, 0.7 л","billa":20.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Prosecco Treviso Brut DOC MIONETTO, 0.75 л","billa":15.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Вино AUREOS, 0.75 л","billa":8.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Вино CHATEAU KARNOBAT, 3 л","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Ирландско уиски POGUES, 1 л","billa":43.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Уиски 12YO CHIVAS REGAL, 0.7 л","billa":41.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Джин HENDRICK'S, 0.7 л","billa":65.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Джин 47 MONKEY, 0.5 л","billa":75.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Джин Original MALFY, 0.7 л","billa":50.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Джин TANQUERAY TEN, 0.7 л","billa":66.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Водка BELVEDERE, 0.7 л","billa":79.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Водка Elyx ABSOLUT, 0.7 л","billa":99.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Водка CIROC, 0.7 л","billa":79.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Водка GREY GOOSE, 0.7 л","billa":90.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Ром 12YO APPLETON ESTATE, 0.7 л","billa":61.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Ром 12YO FLOR DE CANA, 0.7 л","billa":60.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Ром BUMBU XO, 0.7 л","billa":74.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Ром 18YO FLOR DE CANA, 0.7 л","billa":87.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Текила Reposado 1800, 0.7 л","billa":80.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Текила Silver 1800, 0.7 л","billa":70.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Бренди VASPURAKAN 15 YO ARARAT, 0.7 л","billa":102.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Коняк MARTELL VSOP, 0.7 л","billa":80.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Alcohol","product":"Коняк HENNESSY VSOP, 0.7 л","billa":124.99,"kaufland":null,"fantastico":null,"lidl":null},
+
+            {"category":"Household & Cleaning","product":"Кухненска ролка PAPIA, 2 бр.","billa":2.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Кухненска ролка Professional ZEBRA, 1 бр.","billa":5.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Тоалетна хартия MALIVA, 32+8 бр.","billa":16.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Тоалетна хартия Deluxe ZEWA, 2 бр.","billa":22.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Тоалетно блокче BREF","billa":9.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Препарат за почистване MEDIX, 1.4 л","billa":4.29,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Препарат за съдове MEDIX, 750 мл","billa":2.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Капсули за съдомиялна FAIRY, 116 бр.","billa":39.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Омекотител / Перли LENOR","billa":7.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Гел за пране Alvina MEDIX, 44 пранета","billa":12.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Гел / Капсули за пране ARIEL","billa":18.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Гел / Дискове за пране PERSIL","billa":33.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Гел за пране Color SAVEX, 60 пранета","billa":22.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"Ежедневни Дамски превръзки LIBRESSE, 32 бр.","billa":3.79,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Household & Cleaning","product":"ULTRA Дамски превръзки LIBRESSE, 40 бр.","billa":8.99,"kaufland":null,"fantastico":null,"lidl":null},
+
+            {"category":"Personal Care","product":"Паста за зъби Ultra Clean PARODONTAX, 75 мл","billa":5.59,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Олио за бързо потъмняване CARROTEN, 70 мл","billa":7.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Детски слънцезащитен спрей SPF 50+ NIVEA, 270 мл","billa":21.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Защитно олио Sun Protect & Bronze SPF 30 NIVEA, 200 мл","billa":19.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Слънцезащитен лосион Sun Protect&Moister SPF 50+ NIVEA, 400 мл","billa":22.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Слънцезащитна емулсия SPF50 ЗДРАВЕ БЕБЕ, 150 мл","billa":12.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Олио за бърз загар SPF 20 SUN LIKE, 200 мл","billa":11.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Слънцезащитно мляко SPF 50 БОЧКО, 150 мл","billa":14.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Слънцезащитен спрей лосион SPF 50 БОЧКО, 125 мл","billa":15.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Слънцезащитно мляко SPF 50 CARROTEN, 270 мл","billa":19.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Мляко за след слънце БОЧКО, 150 мл","billa":5.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Слънцезащитно спрей-мляко SPF 30 SUN LIKE, 250 мл","billa":14.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Аерозол спрей против комари Max BROS, 90 мл","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Гел след ухапване БОЧКО, 20 мл","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Лосион против комари Family AUTAN, 100 мл","billa":8.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Лосион против ухапване БОЧКО, 120 мл","billa":8.49,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Лосион против комари Family DERMA+, 100 мл","billa":6.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Електрически изпарител RAID, 21 мл","billa":10.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Аерозол против насекоми RAID, 400 мл","billa":7.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Спирали против комари BROS, 10 бр.","billa":3.69,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Електрически изпарител за деца BROS","billa":8.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Паста/Четка за зъби COLGATE","billa":1.89,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Бебешки мокри кърпи BILLA, 64 бр.","billa":1.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Кърпи за лице BILLA, 100 бр.","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Дезодорант FA","billa":3.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Дезодорант спрей STR8, 150 мл","billa":5.39,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Душ гел NIVEA, 500 мл","billa":7.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Боя за коса Color AROMA","billa":2.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Паста за зъби Max White Charcoal COLGATE, 75 мл","billa":4.15,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Дезодорант DOVE ADVANCED","billa":6.75,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Крем сапун DOVE, 90 г","billa":2.09,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Дезодорант REXONA","billa":5.35,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Балсам за устни NIVEA, 4.8 г","billa":5.99,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Шампоан против пърхот HEAD&SHOULDERS, 330 мл","billa":8.95,"kaufland":null,"fantastico":null,"lidl":null},
+            {"category":"Personal Care","product":"Бебешки пелени PAMPERS PREMIUM","billa":28.79,"kaufland":null,"fantastico":null,"lidl":null},
+
+            {"category":"Pet Food","product":"Пауч за котки FELIX, 12x85 г","billa":7.59,"kaufland":null,"fantastico":null,"lidl":null}
         ];
         
         const stores = {
