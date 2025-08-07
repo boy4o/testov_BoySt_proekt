@@ -1,14 +1,15 @@
 <!DOCTYPE html>
+
 <html lang="bg">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Промо Оферти - Сравнение на Цени</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Промо Оферти - Сравнение на Цени</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<style>
         :root {
             --billa-color: #f5c518;
             --lidl-color: #0050aa;
@@ -71,113 +72,116 @@
         .table-fixed td {
             word-wrap: break-word;
         }
-        
-        /* --- CSS ЗА "ЛЕПКАВ" ХЕДЪР В СКРОЛИРУЕМ КОНТЕЙНЕР --- */
-        #table-head {
-            position: -webkit-sticky; /* За съвместимост със Safari */
-            position: sticky;
-            top: 0; /* Залепва за горната част на своя скролируем родител */
-            z-index: 10;
-        }
-
-        #table-head th {
-            /* Този стил е важен, за да не прозира съдържанието на таблицата под хедъра при скрол */
-            background-color: #f9fafb; /* Същият цвят като оригиналния bg-gray-50 */
-        }
-        /* --- КРАЙ НА CSS --- */
-
-    </style>
+    
+/* Sticky header fix */
+#category-page .table-container {
+    max-height: 600px;
+    overflow-y: auto;
+}
+#category-page thead#table-head th {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb;
+    z-index: 10;
+}
+</style>
 </head>
 <body class="bg-gray-100 text-gray-800">
-
-    <div id="app" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-
-        <header class="mb-6">
-            <div class="flex justify-between items-center">
-                <div class="flex-1 flex justify-start">
-                    <button class="text-gray-700 hover:text-teal-600 transition-colors cta-button nav-button" onclick="showPage('home')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
-                        <span class="hidden sm:inline">Начало</span>
-                    </button>
-                </div>
-                <div class="flex-1 text-center">
-                     <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 cursor-pointer" onclick="showPage('home')">Промо<span class="text-teal-600">Оферти</span></h1>
-                </div>
-                <div class="flex-1 flex justify-end">
-                    <button id="shopping-list-button" class="relative bg-teal-600 text-white px-3 sm:px-4 py-2 rounded-lg shadow hover:bg-teal-700 transition-colors cta-button flex items-center gap-2" onclick="showShoppingList()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                        <span class="hidden sm:inline">Списък</span>
-                        <span id="shopping-list-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">0</span>
-                    </button>
-                </div>
-            </div>
-             <div class="ad-banner h-24 my-6">Рекламен банер (728x90)</div>
-            <nav id="main-nav" class="mt-4 bg-white p-2 rounded-lg shadow-sm">
-                <ul class="flex flex-wrap gap-2 justify-center">
-                    </ul>
-            </nav>
-        </header>
-
-        <main id="home-page" class="page active">
-            <div class="text-center bg-white p-8 rounded-lg shadow">
-                <h2 class="text-2xl font-semibold mb-4">Добре дошли! Спестете с най-добрите промоции.</h2>
-                <p class="text-gray-600 mb-6">Разгледайте топ офертите на седмицата или изберете категория, за да започнете вашето сравнение.</p>
-                <div id="top-offers-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    </div>
-                 <a href="#main-nav" class="inline-block bg-teal-600 text-white px-6 py-3 rounded-lg shadow-lg cta-button">
+<!-- Основен контейнер на приложението -->
+<div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8" id="app">
+<!-- Хедър и Навигация -->
+<header class="mb-6">
+<div class="flex justify-between items-center">
+<div class="flex-1 flex justify-start">
+<button class="text-gray-700 hover:text-teal-600 transition-colors cta-button nav-button" onclick="showPage('home')">
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+<span class="hidden sm:inline">Начало</span>
+</button>
+</div>
+<div class="flex-1 text-center">
+<h1 class="text-2xl sm:text-3xl font-bold text-gray-900 cursor-pointer" onclick="showPage('home')">Промо<span class="text-teal-600">Оферти</span></h1>
+</div>
+<div class="flex-1 flex justify-end">
+<button class="relative bg-teal-600 text-white px-3 sm:px-4 py-2 rounded-lg shadow hover:bg-teal-700 transition-colors cta-button flex items-center gap-2" id="shopping-list-button" onclick="showShoppingList()">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="hidden sm:inline">Списък</span>
+<span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" id="shopping-list-count">0</span>
+</button>
+</div>
+</div>
+<!-- Рекламен банер -->
+<div class="ad-banner h-24 my-6">Рекламен банер (728x90)</div>
+<nav class="mt-4 bg-white p-2 rounded-lg shadow-sm" id="main-nav">
+<ul class="flex flex-wrap gap-2 justify-center">
+<!-- Категориите ще се генерират тук -->
+</ul>
+</nav>
+</header>
+<!-- НАЧАЛНА СТРАНИЦА -->
+<main class="page active" id="home-page">
+<div class="text-center bg-white p-8 rounded-lg shadow">
+<h2 class="text-2xl font-semibold mb-4">Добре дошли! Спестете с най-добрите промоции.</h2>
+<p class="text-gray-600 mb-6">Разгледайте топ офертите на седмицата или изберете категория, за да започнете вашето сравнение.</p>
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8" id="top-offers-container">
+<!-- Топ офертите ще се генерират тук -->
+</div>
+<a class="inline-block bg-teal-600 text-white px-6 py-3 rounded-lg shadow-lg cta-button" href="#main-nav">
                     Изберете категория продукти
                 </a>
-            </div>
-            <footer id="global-stats-footer" class="mt-8 bg-white p-6 rounded-lg shadow">
-                 </footer>
-        </main>
-
-        <main id="category-page" class="page">
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
-                <h2 id="category-title" class="text-2xl font-bold"></h2>
-                <div class="w-full sm:w-1/2">
-                    <input type="text" id="search-box" placeholder="Търсене на продукт..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-                </div>
-            </div>
-             <div class="ad-banner h-48 mb-6 hidden md:flex">Квадратен рекламен банер (300x250)</div>
-            
-            <div class="overflow-x-auto bg-white rounded-lg shadow max-h-[75vh] overflow-y-auto">
-                <table class="min-w-full divide-y divide-gray-200 table-fixed">
-                    <thead id="table-head" class="bg-gray-50">
-                        </thead>
-                    <tbody id="table-body" class="bg-white divide-y divide-gray-200">
-                        </tbody>
-                </table>
-            </div>
-            <footer id="category-footer" class="text-center mt-4 text-gray-500 text-sm">
-                </footer>
-        </main>
-
-    </div>
-
-    <div id="shopping-list-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-2xl font-bold">Списък за пазар</h2>
-                <button onclick="hideShoppingList()" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
-            </div>
-            <div id="shopping-list-items" class="mb-4">
-                </div>
-            <div class="border-t pt-4">
-                <div class="flex justify-between items-center font-bold text-xl mb-4">
-                    <span>Обща сума:</span>
-                    <span id="total-price">0.00 лв.</span>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <button onclick="optimizeBasket()" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cta-button">Изчисли най-изгодната кошница</button>
-                    <button onclick="shareList()" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition cta-button">Сподели списъка</button>
-                </div>
-            </div>
-            <div id="optimization-result" class="mt-4 p-4 bg-gray-100 rounded-lg hidden"></div>
-        </div>
-    </div>
-
-
+</div>
+<!-- Секция със статистики -->
+<footer class="mt-8 bg-white p-6 rounded-lg shadow" id="global-stats-footer">
+<!-- Статистиките ще се генерират тук -->
+</footer>
+</main>
+<!-- СТРАНИЦА НА КАТЕГОРИЯ -->
+<main class="page" id="category-page">
+<div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+<h2 class="text-2xl font-bold" id="category-title"></h2>
+<div class="w-full sm:w-1/2">
+<input class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" id="search-box" placeholder="Търсене на продукт..." type="text"/>
+</div>
+</div>
+<!-- Рекламен банер -->
+<div class="ad-banner h-48 mb-6 hidden md:flex">Квадратен рекламен банер (300x250)</div>
+<div class="overflow-x-auto bg-white rounded-lg shadow table-container">
+<table class="min-w-full divide-y divide-gray-200 table-fixed">
+<thead class="bg-gray-50" id="table-head">
+<!-- Хедърът на таблицата ще се генерира тук -->
+</thead>
+<tbody class="bg-white divide-y divide-gray-200" id="table-body">
+<!-- Редовете с продукти ще се генерират тук -->
+</tbody>
+</table>
+</div>
+<footer class="text-center mt-4 text-gray-500 text-sm" id="category-footer">
+<!-- Футерът на категорията ще се генерира тук -->
+</footer>
+</main>
+</div>
+<!-- МОДАЛЕН ПРОЗОРЕЦ ЗА СПИСЪК ЗА ПАЗАР -->
+<div class="modal-overlay hidden" id="shopping-list-modal">
+<div class="modal-content">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-2xl font-bold">Списък за пазар</h2>
+<button class="text-gray-500 hover:text-gray-800 text-3xl leading-none" onclick="hideShoppingList()">×</button>
+</div>
+<div class="mb-4" id="shopping-list-items">
+<!-- Продуктите от списъка ще се генерират тук -->
+</div>
+<div class="border-t pt-4">
+<div class="flex justify-between items-center font-bold text-xl mb-4">
+<span>Обща сума:</span>
+<span id="total-price">0.00 лв.</span>
+</div>
+<div class="flex flex-col sm:flex-row gap-2">
+<button class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition cta-button" onclick="optimizeBasket()">Изчисли най-изгодната кошница</button>
+<button class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition cta-button" onclick="shareList()">Сподели списъка</button>
+</div>
+</div>
+<div class="mt-4 p-4 bg-gray-100 rounded-lg hidden" id="optimization-result"></div>
+</div>
+</div>
 <script>
 // --- ДАННИ ---
 // В реален проект, тези данни ще идват от отделни JSON файлове за всяка категория.
@@ -662,6 +666,5 @@ function showToast(message) {
 }
 
 </script>
-
 </body>
 </html>
