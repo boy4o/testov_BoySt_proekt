@@ -72,21 +72,26 @@
             word-wrap: break-word;
         }
         
-        /* Sticky table header for category pages */
+        /* --- CSS ЗА "ЛЕПКАВ" ХЕДЪР В СКРОЛИРУЕМ КОНТЕЙНЕР --- */
         #table-head {
+            position: -webkit-sticky; /* За съвместимост със Safari */
             position: sticky;
-            top: 0;
+            top: 0; /* Залепва за горната част на своя скролируем родител */
             z-index: 10;
-            background-color: #f9fafb;
         }
+
+        #table-head th {
+            /* Този стил е важен, за да не прозира съдържанието на таблицата под хедъра при скрол */
+            background-color: #f9fafb; /* Същият цвят като оригиналния bg-gray-50 */
+        }
+        /* --- КРАЙ НА CSS --- */
+
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
 
-    <!-- Основен контейнер на приложението -->
     <div id="app" class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
 
-        <!-- Хедър и Навигация -->
         <header class="mb-6">
             <div class="flex justify-between items-center">
                 <div class="flex-1 flex justify-start">
@@ -106,34 +111,27 @@
                     </button>
                 </div>
             </div>
-             <!-- Рекламен банер -->
-            <div class="ad-banner h-24 my-6">Рекламен банер (728x90)</div>
+             <div class="ad-banner h-24 my-6">Рекламен банер (728x90)</div>
             <nav id="main-nav" class="mt-4 bg-white p-2 rounded-lg shadow-sm">
                 <ul class="flex flex-wrap gap-2 justify-center">
-                    <!-- Категориите ще се генерират тук -->
-                </ul>
+                    </ul>
             </nav>
         </header>
 
-        <!-- НАЧАЛНА СТРАНИЦА -->
         <main id="home-page" class="page active">
             <div class="text-center bg-white p-8 rounded-lg shadow">
                 <h2 class="text-2xl font-semibold mb-4">Добре дошли! Спестете с най-добрите промоции.</h2>
                 <p class="text-gray-600 mb-6">Разгледайте топ офертите на седмицата или изберете категория, за да започнете вашето сравнение.</p>
                 <div id="top-offers-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <!-- Топ офертите ще се генерират тук -->
-                </div>
+                    </div>
                  <a href="#main-nav" class="inline-block bg-teal-600 text-white px-6 py-3 rounded-lg shadow-lg cta-button">
                     Изберете категория продукти
                 </a>
             </div>
-            <!-- Секция със статистики -->
             <footer id="global-stats-footer" class="mt-8 bg-white p-6 rounded-lg shadow">
-                 <!-- Статистиките ще се генерират тук -->
-            </footer>
+                 </footer>
         </main>
 
-        <!-- СТРАНИЦА НА КАТЕГОРИЯ -->
         <main id="category-page" class="page">
             <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
                 <h2 id="category-title" class="text-2xl font-bold"></h2>
@@ -141,26 +139,22 @@
                     <input type="text" id="search-box" placeholder="Търсене на продукт..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
                 </div>
             </div>
-             <!-- Рекламен банер -->
-            <div class="ad-banner h-48 mb-6 hidden md:flex">Квадратен рекламен банер (300x250)</div>
-            <div class="overflow-x-auto bg-white rounded-lg shadow">
+             <div class="ad-banner h-48 mb-6 hidden md:flex">Квадратен рекламен банер (300x250)</div>
+            
+            <div class="overflow-x-auto bg-white rounded-lg shadow max-h-[75vh] overflow-y-auto">
                 <table class="min-w-full divide-y divide-gray-200 table-fixed">
                     <thead id="table-head" class="bg-gray-50">
-                        <!-- Хедърът на таблицата ще се генерира тук -->
-                    </thead>
+                        </thead>
                     <tbody id="table-body" class="bg-white divide-y divide-gray-200">
-                        <!-- Редовете с продукти ще се генерират тук -->
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
             <footer id="category-footer" class="text-center mt-4 text-gray-500 text-sm">
-                <!-- Футерът на категорията ще се генерира тук -->
-            </footer>
+                </footer>
         </main>
 
     </div>
 
-    <!-- МОДАЛЕН ПРОЗОРЕЦ ЗА СПИСЪК ЗА ПАЗАР -->
     <div id="shopping-list-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
@@ -168,8 +162,7 @@
                 <button onclick="hideShoppingList()" class="text-gray-500 hover:text-gray-800 text-3xl leading-none">&times;</button>
             </div>
             <div id="shopping-list-items" class="mb-4">
-                <!-- Продуктите от списъка ще се генерират тук -->
-            </div>
+                </div>
             <div class="border-t pt-4">
                 <div class="flex justify-between items-center font-bold text-xl mb-4">
                     <span>Обща сума:</span>
